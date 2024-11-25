@@ -72,7 +72,7 @@ if ($x -eq 4)
 if ($x -eq 5)
 {
     cls
-    Start-Process -FilePath "powershell.exe" 
+    Start-Process -FilePath "powershell.exe" -Verb RunAs
 }
 if ($x -ne 6)
 {
