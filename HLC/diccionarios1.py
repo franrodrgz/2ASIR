@@ -3,12 +3,13 @@ def introducirDatos():
     datitos={}
     nservidores=int(input("Cuantos servidores quieres introducir: "))
     for i in range(nservidores):
-        ip=input("Introduce un adirección IP valida: ")
+        nombre=input("Introduce el nombre del servidor: ")
+        ip=input("Introduce una dirección IP valida: ")
         masc=input("Introduce la máscara de red: ")
         gateway=input("Introduce la puerta de enlace de la red: ")
         DNS=input("Introduce los servidores DNS: ")
-        datitos.update({ip,masc,gateway,DNS})
-    print({datitos})
+        datitos.update({nombre:{ip,masc,gateway,DNS}})
+    return datitos
 
 def mostrarDatos(diccionario):
     # Mostrar las claves del diccionario.
@@ -67,8 +68,9 @@ def main(args):
                   "DNS":["1.1.1.1","8.8.8.8"]
                   }
           }
-    introducirDatos()
     mostrarDatos(datos)
+    datitos=introducirDatos()
+    print(datitos)
     return 0
 
 if __name__ == '__main__':
