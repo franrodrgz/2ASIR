@@ -1,0 +1,12 @@
+zone "clase.lan" {
+	type master;
+	file "/etc/bind/zones/db.clase.lan";
+	allow-transfer { 192.168.59.70; };
+	also-notify { 192.168.59.70; };
+};
+
+zone "168.192.in-addr.arpa" {
+    type primary;
+    file "/etc/bind/zones/db.168.192";
+    allow-transfer { 192.168.59.70; };
+};

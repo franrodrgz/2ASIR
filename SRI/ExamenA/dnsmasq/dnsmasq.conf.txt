@@ -1,0 +1,17 @@
+port=53
+
+domain-needed
+
+bogus-priv
+
+strict-order
+
+expand-hosts
+
+domain=dnsmasq.lan
+
+server=/clase.lan/192.168.59.40
+
+server=/168.192.in-addr.arpa/192.168.1.154
+
+listen-address=127.0.0.1

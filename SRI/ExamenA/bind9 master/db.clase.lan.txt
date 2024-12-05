@@ -1,0 +1,26 @@
+;
+; BIND data file for local loopback interface
+;
+$ORIGIN clase.lan.
+$TTL	604800
+@	IN	SOA	ns1.clase.lan. root.localhost. (
+			2411262		; Serial
+			 604800		; Refresh
+			  86400		; Retry
+			2419200		; Expire
+			 604800 )	; Negative Cache TTL
+;
+@	IN	NS	ns1.clase.lan.
+@	IN	NS	ns2.clase.lan.
+;@	IN	A	127.0.0.1
+;@	IN	AAAA	::1
+ns1	IN	A	192.168.59.40
+ns2	IN	A	192.168.59.70
+;s1	IN	CNAME	ns1
+;s2	IN	CNAME	ns2
+$GENERATE 1-2 s${0,1,d} IN CNAME ns${0,1,d}
+$GENERATE 0-9	pc${0,2,d} A 192.168.8.1${0,1,d}
+$GENERATE 0-9	pc1${0,1,d} A 192.168.8.2${0,1,d}
+pc20	IN	A	192.168.8.30
+$GENERATE 0-99	c1${0,2,d} A 192.168.9.1${0,2,d}
+$GENERATE 0-54	c2${0,2,d} A 192.168.9.2${0,2,d}
