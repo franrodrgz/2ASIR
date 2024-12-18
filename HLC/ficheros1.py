@@ -5,9 +5,13 @@ def main(args):
     try:
         archivo=open("txt.txt")
     except FileNotFoundError:
-        print("armendritas")
-    for linea in archivo:
-        print(linea.strip)
+        print("Archivo no encontrado")
+
+    contenido=archivo.read()
+    print("CONTENIDO COMPLETO\n")
+    print(contenido)
+
+    archivo.close()
     return 0
 
 if __name__ == '__main__':
