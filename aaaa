@@ -1,0 +1,62 @@
+sudo hostnamectl set-hostname fjrm-2asir.lan
+sudo nano /etc/hosts
+10.0.2.15 fjrm-2asir.lan
+logout
+sudo apt update
+sudo apt -y install slapd ldap-utils
+nano basedn.ldif
+
+sudo ldapadd -x -D cn=admin,dc=fjrm-2asir,dc=lan -W -f basedn.ldif
+sudo dpkg-reconfigure slapd
+
+dn: ou=ASIR,dc=fjrm-2asir,dc=lan
+objectClass: top
+objectClass: organizationalUnit
+ou: ASIR
+
+ldapadd -x -D 'cn=admin,dc=fjrm-2asir,dc=lan' -W -f ou.ldif
+
+dn: cn=PRIMERO,ou=ASIR,dc=fjrm-2asir,dc=lan
+objectClass: top
+objectClass: posixGroup
+cn: PRIMERO
+gidNumber: 1001
+
+dn: cn=SEGUNDO,ou=ASIR,dc=fjrm-2asir,dc=lan
+objectClass: top
+objectClass: posixGroup
+cn: SEGUNDO
+gidNumber: 1002
+
+ldapadd -x -D 'cn=admin,dc=fjrm-2asir,dc=lan' -W -f groups.ldif
+
+dn: uid=Fran,ou=ASIR,dc=fjrm-2asir,dc=lan
+objectClass: top
+objectClass: posixAccount
+objectClass: person
+cn: fran
+uid: frodmun
+uidNumber: 2000
+gidNumber: 1002
+homeDirectory: /home/fran
+loginShell: /bin/bash
+userPassword: {SSHA}434fdasfe43Ff45r4--4!VRG23
+sn: fran
+
+ldapadd -x -D 'cn=admin,dc=fjrm-2asir,dc=lan' -W -f users.ldif
+
+dn: uid=Jperez,ou=ASIR,dc=fjrm-2asir,dc=lan
+objectClass: top
+objectClass: posixAccount
+objectClass: person
+cn: jperez 
+uid: jperez 
+uidNumber: 2001
+gidNumber: 1002
+homeDirectory: /home/jperez
+loginShell: /bin/bash
+userPassword: {SSHA}434fdasfe43Ff45r4--4!VRG23
+sn: jperez
+
+
+ldapadd -x -D 'cn=admin,dc=fjrm-2asir,dc=lan' -W -f users.ldif

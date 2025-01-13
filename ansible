@@ -1,0 +1,31 @@
+sudo apt-add-repository ppa:ansible/ansible
+
+sudo apt update
+
+sudo apt install ansible
+
+sudo nano /etc/ansible/hosts
+
+	[servers]
+		server1 ansible_host=203.0.113.111
+		server2 ansible_host=203.0.113.112
+		server3 ansible_host=203.0.113.113
+
+	[all:vars]
+		ansible_python_interpreter=/usr/bin/python3
+		
+ansible-inventory --list -y
+
+git clone https://github.com/do-community/ansible-playbooks.git
+
+cd ansible-playbooks
+
+nano playbook.yml
+
+nano vars/default.yml
+
+ssh-keygen
+
+ssh-copy-id user@192.168.59.73
+
+ansible-playbook playbook.yml -i ip -u wp
