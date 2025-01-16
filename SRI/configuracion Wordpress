@@ -1,0 +1,209 @@
+# Instalación de WordPress con la pila LAMP #
+
+# Actualizamos el sistema #
+sudo apt update
+
+# Instalación del servicio web #
+sudo apt install apache2
+
+# Instalación de SGBD #
+sudo apt install mariadb-server
+
+# Entramos a la configuración del SGBD #
+sudo mysql
+	
+	# Modificamos el usuario root para asignarle contraseña #
+	ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';
+
+	# Hacemos que se recargen los permisos #
+	FLUSH PRIVILEGES;
+
+# Instalación de PHP #
+sudo apt install php libapache2-mod-php php-mysql
+
+# Reiniciamos el servicio Web #
+sudo systemctl restart apache2
+
+# Entramos en la configuración de SGBD #
+mysql -u root -proot
+
+	# Creamos la base de datos que usaremos para WordPress #
+	CREATE DATABASE wpdb DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+
+	# Creamos un usuario para la base de datos #
+	CREATE USER 'wpdbu'@'localhost' IDENTIFIED BY 'wpdbu';
+
+	# Le damos todos los permisos para la base de datos que usaremos para WordPress #
+	GRANT ALL ON wpdb.* TO 'wpdbu'@'localhost';
+
+	# Hacemos que se recargen los permisos #
+	FLUSH PRIVILEGES;
+	
+# Instalación de paquetes de PHP necesarios para que funcione Wordpress correctamente #
+sudo apt install php-curl php-gd php-mbstring php-xml php-xmlrpc php-soap php-intl php-zip
+
+# Reiniciamos el servicio web #
+sudo systemctl restart apache2
+
+# Entramos en el direectorio donde se guardan los sitios a los que se puede acceder #
+cd /etc/apache2/sites-available/
+
+# Copiamos el archivo de configuración del sitio por defecto para modificar uno nuevo para Wordpress #
+sudo cp 000-default.conf wp.conf
+
+# Editamos el archivo de configuración #
+sudo nano /etc/apache2/sites-available/wp.conf
+
+	# Cambiamos el nombre para que se acceda poniendo el nombre "wp" #
+	ServerName wp
+
+	# Cambiamos la ruta para especificar donde estaran nuestros archivos de Wordpress #
+	DocumentRoot /var/www/wp
+
+	# Con esto damos permisos de sobreescritura en la carpeta raiz de Wordpress #
+	<Directory /var/www/wp/>
+		AllowOverride All
+	</Directory>
+    
+# permalinks #
+sudo a2enmod rewrite
+
+#  #
+sudo systemctl restart apache2
+
+#  #
+cd /tmp
+
+#  #
+curl -O https://wordpress.org/latest.tar.gz
+
+#  #
+tar xzvf latest.tar.gz
+
+#  #
+touch /tmp/wordpress/.htaccess
+
+#  #
+cp /tmp/wordpress/wp-config-sample.php /tmp/wordpress/wp-config.php
+
+#  #
+mkdir /tmp/wordpress/wp-content/upgrade
+
+#  #
+sudo cp -a /tmp/wordpress/. /var/www/wp
+
+#  #
+sudo chown -R www-data:www-data /var/www/wp
+
+#  #
+sudo find /var/www/wp/ -type d -exec chmod 750 {} \;
+
+#  #
+sudo find /var/www/wp/ -type f -exec chmod 640 {} \;
+
+#  #
+curl -s https://api.wordpress.org/secret-key/1.1/salt/
+
+define('AUTH_KEY',         'aoU-.5j)!J#?HQ0A}J8|8`@#I{j&*}%(C5Iq5|Q]{?}X$Q>.=Ajld=s0g$<D2?|+');
+define('SECURE_AUTH_KEY',  'Facs$+IP`%ILd4bK k#)6~;&-*!-u7)ccP+yaM:u3Y&x]{~JYg$jtn[8/3Eedhii');
+define('LOGGED_IN_KEY',    '~xJc KWvdRh6YTp};MQ,U)-zrM:w|M.-&cLVW{ |OYEN?n+i=EyCQU*30hkaM`%B');
+define('NONCE_KEY',        'bOH{r$]YYWa{+37D7<&B*{vR2>(8[+c{9Mh7tX:QX,@SbqK0V%dCx7`dWiK{^,%r');
+define('AUTH_SALT',        '-Io;QFO[|YAKjn#w,<Io#.hS_jHW2=-BJr<0<.oAR*-Y23q-62%nVRrbu|UBsl<p');
+define('SECURE_AUTH_SALT', ',jf3=,99|_o-$6|>nG;uM|KL7uG4YL+<|$kWiA>[pox0Xz bQaL51re|nOTj!`G|');
+define('LOGGED_IN_SALT',   '2)}RC>{UQ*rg$F@&p([`_[[l~RbfQX8V8qTJ4+c6}sr3.5Ilk+@-gON1CYK(V,dn');
+define('NONCE_SALT',       'c/7P[;Q9sjF-%}yLR|NUct<JFgv$,PTi6X0{(v+-)[U(2X@=2j@ cA(%OoTn+Hi6');
+
+#  #
+sudo nano /var/www/wp/wp-config.php
+
+define( 'DB_NAME', 'wpdb' );
+
+/** Database username */
+define( 'DB_USER', 'wpdbu' );
+
+/** Database password */
+define( 'DB_PASSWORD', 'wpdbu' );
+
+/** Database hostname */
+define( 'DB_HOST', 'localhost' );
+
+define('FS_METHOD', 'direct');
+
+define('AUTH_KEY',         'aoU-.5j)!J#?HQ0A}J8|8`@#I{j&*}%(C5Iq5|Q]{?}X$Q>.=Ajld=s0g$<D2?|+');
+define('SECURE_AUTH_KEY',  'Facs$+IP`%ILd4bK k#)6~;&-*!-u7)ccP+yaM:u3Y&x]{~JYg$jtn[8/3Eedhii');
+define('LOGGED_IN_KEY',    '~xJc KWvdRh6YTp};MQ,U)-zrM:w|M.-&cLVW{ |OYEN?n+i=EyCQU*30hkaM`%B');
+define('NONCE_KEY',        'bOH{r$]YYWa{+37D7<&B*{vR2>(8[+c{9Mh7tX:QX,@SbqK0V%dCx7`dWiK{^,%r');
+define('AUTH_SALT',        '-Io;QFO[|YAKjn#w,<Io#.hS_jHW2=-BJr<0<.oAR*-Y23q-62%nVRrbu|UBsl<p');
+define('SECURE_AUTH_SALT', ',jf3=,99|_o-$6|>nG;uM|KL7uG4YL+<|$kWiA>[pox0Xz bQaL51re|nOTj!`G|');
+define('LOGGED_IN_SALT',   '2)}RC>{UQ*rg$F@&p([`_[[l~RbfQX8V8qTJ4+c6}sr3.5Ilk+@-gON1CYK(V,dn');
+define('NONCE_SALT',       'c/7P[;Q9sjF-%}yLR|NUct<JFgv$,PTi6X0{(v+-)[U(2X@=2j@ cA(%OoTn+Hi6');
+
+#  #
+sudo a2ensite wp.conf
+
+#  #
+sudo systemctl restart apache2
+
+# CAMBIO DE PUERTOS #
+
+#  #
+sudo cp wp.conf wp8080.conf
+
+#  #
+sudo nano wp8080.conf
+
+#  #
+<VirtualHost *:8080>
+
+#  #
+sudo nano /etc/apache2/ports.conf
+
+#  #
+Listen 8080
+
+#  #
+sudo a2ensite wp8080.conf
+
+#  #
+sudo systemctl restart apache2
+
+# HTTPS #
+
+#  #
+sudo cp default-ssl.conf wp443.conf
+
+#  #
+<VirtualHost *:80>
+   ServerName wp                
+   Redirect permanent / https://wp
+</VirtualHost>
+
+#  #
+sudo a2enmod ssl
+
+#  #
+sudo a2ensite wp443.conf
+
+#  #
+sudo systemctl restart apache2
+
+#  #
+sudo a2enmod ssl
+
+#  #
+sudo a2dissite wp8080.conf
+
+#  #
+sudo a2dissite wp.conf
+
+#  #
+sudo systemctl restart apache2
+
+# REDIRECCIONAR A OTRA IP #
+# NOTA: EL SERVIDOR TIENE QUE TENER LA IP LA CUAL ASIGNES #
+
+#  #
+<VirtualHost 192.168.59.73:80>
+
+#  #
+sudo systemctl restart apache2

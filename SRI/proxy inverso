@@ -1,0 +1,67 @@
+sudo apt install apache2
+
+cd /etc/apache2/
+
+sudo nano ports.conf
+
+	Listen 8080
+
+cd /etc/apache2/sites-available
+
+sudo nano uno.conf
+
+<VirtualHost 192.168.59.43:8080>
+        ServerName uno
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/uno
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+
+sudo nano dos.conf
+
+<VirtualHost 192.168.59.73:8080>
+        ServerName dos
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/dos
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+
+cd /var/www
+
+sudo mkdir uno
+
+sudo mkdir dos
+
+cd /etc/nginx/sites-available
+
+sudo cp default default.bk
+
+sudo nano proxyinverso
+
+upstream myapp1 {
+        least_conn;
+    server uno:8080;
+    server dos:8080;
+}
+server {
+    listen 80;
+    server_name vb1;
+    location / {
+        proxy_pass http://myapp1;
+        proxy_next_upstream error timeout;
+    }
+}
+
+sudo ln -s /etc/nginx/sites-available/proxyinverso /etc/nginx/sites-enabled/
+
+sudo systemctl restart apache2.service
+
+sudo systemctl restart nginx.service
+
+sudo nano /etc/hosts
+
+192.168.59.43 vb1
+192.168.59.43 uno
+192.168.59.73 dos
