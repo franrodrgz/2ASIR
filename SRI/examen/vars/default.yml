@@ -1,0 +1,4 @@
+---
+http_host: "proxyinverso"
+http_conf: "proxyinverso.conf"
+http_port: "80"

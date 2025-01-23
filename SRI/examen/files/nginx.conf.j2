@@ -1,0 +1,23 @@
+server {
+    listen 80;
+    server_name vb;
+    return 301 https://vb;
+}
+upstream proxy {
+
+        least_conn;
+}
+server {
+        listen 443 ssl;
+        server_name vb;
+        ssl_certificate /etc/ssl/certs/vb.crt;
+        ssl_certificate_key /etc/ssl/private/vb.key;
+
+        location / {
+                proxy_pass http://proxy;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+        }
+}
