@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# 1. Ejecutar el comando nload
+echo "Ejecutando el comando nload. Presiona Ctrl+C para salir."
+nload
+
+# 2. Ejecutar el comando iftop
+echo "Ejecutando el comando iftop. Presiona 'q' para salir."
+sudo iftop
+
+# 3. Ejecutar el comando slurm
+echo "Ejecutando el comando slurm. Presiona 'q' para salir."
+slurm
+
+# 4. Redireccionar la salida del comando nload a un fichero con la fecha actual
+echo "Redirigiendo la salida del comando nload a un fichero..."
+
+# Crear un nombre de fichero con la fecha actual
+fecha_actual=$(date '+%Y-%m-%d_%H-%M-%S')
+fichero="nload_output_$fecha_actual.txt"
+
+# Redirigir la salida de nload al fichero
+nload > "$fichero" 2>&1 &
+echo "La salida del comando nload se está guardando en el fichero: $fichero"
+
+# Avisar al usuario
+echo "Para detener la grabación, localiza el proceso nload con 'ps' y finalízalo con 'kill'."
+

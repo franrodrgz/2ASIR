@@ -1,0 +1,192 @@
+#########################################################
+# DO Community Playbooks: Wordpress on Ubuntu 18.04 LAMP
+#########################################################
+---
+- hosts: all
+  become: true
+  vars_files:
+    - vars/default.yml
+  vars_prompt:
+    - name: "name_server"
+      prompt: "¿Cuál sera el nombre del servidor?"
+      private: no
+    - name: "ip_server"
+      prompt: "¿Cuál sera la dirección IP del servidor?"
+      private: no
+    - name: "server_port"
+      prompt: "¿Cuál sera el puerto de escucha del servidor?"
+      private: no
+    - name: "dbname"
+      prompt: "¿Cuál sera el nombre de la base de datos de wordpress?"
+      private: yes
+    - name: "user_db"
+      prompt: "¿Cuál sera el usuario de la base de datos de wordpress?"
+      private: yes
+    - name: "pass_db"
+      prompt: "¿Cuál sera la contraseña del usuario de la base de datos de wordpress?"
+      private: yes
+    - name: "root_pass"
+      prompt: "¿Cuál sera la contraseña del usuario root de MariaDB?"
+      private: yes
+
+  tasks:
+    - name: Hostname
+      set_fact:
+        apache_servers: "{{name_server}}"
+
+    - name: Ip
+      set_fact:
+        apache_servers: "{{ip_server}}"
+
+    - name: http_port
+      set_fact:
+        apache_servers: "{{server_port}}"
+
+    - name: db_name
+      set_fact:
+        apache_servers: "{{dbname}}"
+
+    - name: db_user
+      set_fact:
+        apache_servers: "{{user_db}}"
+
+    - name: db_pass
+      set_fact:
+        apache_servers: "{{pass_db}}"
+
+    - name: dbroot_pass
+      set_fact:
+        apache_servers: "{{root_pass}}"
+
+  tasks:
+    - name: Install prerequisites
+      apt: name=aptitude update_cache=yes state=latest force_apt_get=yes
+      tags: [ system ]
+
+    - name: Install LAMP Packages
+      apt: name={{ item }} update_cache=yes state=latest
+      loop: [ 'apache2', 'mariadb-server', 'python3-pymysql', 'php', 'php-mysql', 'libapache2-mod-php' ]
+      tags: [ system ]
+
+    - name: Install PHP Extensions
+      apt: name={{ item }} update_cache=yes state=latest
+      loop: "{{ php_modules }}"
+      tags: [ system ]
+
+  # Apache Configuration
+    - name: Create document root
+      file:
+        path: "/var/www/{{ name_server }}"
+        state: directory
+        owner: "www-data"
+        group: "www-data"
+        mode: '0755'
+      tags: [ apache ]
+
+    - name: Set up Apache VirtualHost
+      template:
+        src: "files/apache.conf.j2"
+        dest: "/etc/apache2/sites-available/{{ name_server }}.conf"
+      notify: Reload Apache
+      tags: [ apache ]
+
+    - name: Enable rewrite module
+      shell: /usr/sbin/a2enmod rewrite
+      notify: Reload Apache
+      tags: [ apache ]
+
+    - name: Enable new site
+      shell: /usr/sbin/a2ensite {{ name_server }}
+      notify: Reload Apache
+      tags: [ apache ]
+
+    - name: Disable default Apache site
+      shell: /usr/sbin/a2dissite 000-default.conf
+      notify: Restart Apache
+      tags: [ apache ]
+
+  # MySQL Configuration
+    - name: Set the root password
+      mysql_user:
+        name: root
+        password: "{{ root_pass }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+      tags: [ mysql, mysql-root ]
+
+    - name: Remove all anonymous user accounts
+      mysql_user:
+        name: ''
+        host_all: yes
+        state: absent
+        login_user: root
+        login_password: "{{ root_pass }}"
+      tags: [ mysql ]
+
+    - name: Remove the MySQL test database
+      mysql_db:
+        name: test
+        state: absent
+        login_user: root
+        login_password: "{{ root_pass }}"
+      tags: [ mysql ]
+
+    - name: Creates database for WordPress
+      mysql_db:
+        name: "{{ dbname }}"
+        state: present
+        login_user: root
+        login_password: "{{ root_pass }}"
+      tags: [ mysql ]
+
+    - name: Create MySQL user for WordPress
+      mysql_user:
+        name: "{{ user_db }}"
+        password: "{{ pass_db }}"
+        priv: "{{ dbname }}.*:ALL"
+        state: present
+        login_user: root
+        login_password: "{{ root_pass }}"
+      tags: [ mysql ]
+
+  # WordPress Configuration
+    - name: Download and unpack latest WordPress
+      unarchive:
+        src: https://wordpress.org/latest.tar.gz
+        dest: "/var/www/{{ name_server }}"
+        remote_src: yes
+        creates: "/var/www/{{ name_server }}/wordpress"
+      tags: [ wordpress ]
+
+    - name: Set ownership
+      file:
+        path: "/var/www/{{ name_server }}"
+        state: directory
+        recurse: yes
+        owner: www-data
+        group: www-data
+      tags: [ wordpress ]
+
+    - name: Set permissions for directories
+      shell: "/usr/bin/find /var/www/{{ name_server }}/wordpress/ -type d -exec chmod 750 {} \\;"
+      tags: [ wordpress ]
+
+    - name: Set permissions for files
+      shell: "/usr/bin/find /var/www/{{ name_server }}/wordpress/ -type f -exec chmod 640 {} \\;"
+      tags: [ wordpress ]
+
+    - name: Set up wp-config
+      template:
+        src: "files/wp-config.php.j2"
+        dest: "/var/www/{{ name_server }}/wordpress/wp-config.php"
+      tags: [ wordpress ]
+
+  handlers:
+    - name: Reload Apache
+      service:
+        name: apache2
+        state: reloaded
+
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
