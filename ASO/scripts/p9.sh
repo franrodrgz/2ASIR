@@ -2,45 +2,28 @@
 
 # Funciones para las opciones del menú
 opcion1() {
-    echo "Introduce el nombre para el nuevo usuario: "
-    read usuario
-    useradd -m "$usuario"
-    echo "Introduce la contraseña de usuario: "
-    read pass
-    echo "$usuario:$pass" | sudo chpasswd
-    echo "Usuario '$usuario' creado exitosamente."
+    sudo useradd -m "$1"
+    sudo echo "$1:$2" | sudo chpasswd
+    echo "Usuario '$1' creado exitosamente."
 }
 
 opcion2() {
-    echo "Introduce el nombre del usuario que quieres modificar: "
-    read usuario2
-    echo "Introduce la nueva contraseña de usuario: "
-    read pass2
-    sudo usermod -p "$pass2" "$usuario2"
+    sudo usermod -p "$2" "$1"
     echo "Usuario modificado correctamente"
 }
 
 opcion3() {
-    echo "Introduce el nombre del usuario al que quieres eliminar: "
-    read usuario3
-    sudo userdel -r "$usuario3"
+    sudo userdel -r "$1"
     echo "Usuario eliminado correctamente"
 }
 
 opcion4() {
     sudo apt install finger > /dev/null 2>&1
-    echo "Introduce el nombre del usuario del que quiere la información: "
-    read usuario4
-    finger "$usuario4"
+    finger "$1"
 }
 
 opcion5() {
-    echo "Introduce el nombre del usuario que quiere modificar: "
-    read usuario5
-    echo "Introduce el grupo que quiere añadir al usuario: "
-    read grupo
-    usermod -aG "$grupo" "usuario5"
-
+    sudo usermod -aG "$2" "$1"
 }
 
 salir() {
@@ -71,11 +54,32 @@ while true; do
     read opcion
     
     case $opcion in
-        1) opcion1 ;;
-        2) opcion2 ;;
-        3) opcion3 ;;
-        4) opcion4 ;;
-        5) opcion5 ;;
+        1) 
+	echo "Introduce el nombre para el nuevo usuario: "
+	read usuario   
+	echo "Introduce la contraseña de usuario: "
+	read pass
+        opcion1 $usuario $pass;;
+        2) 
+    	echo "Introduce el nombre del usuario que quieres modificar: "
+    	read usuario2
+    	echo "Introduce la nueva contraseña de usuario: "
+    	read pass2
+        opcion2 $usuario2 $pass2;;
+        3) 
+        echo "Introduce el nombre del usuario al que quieres eliminar: "
+        read usuario3
+        opcion3 $usuario3;;
+        4) 
+        echo "Introduce el nombre del usuario del que quiere la información: "
+        read usuario4
+        opcion4 $usuario4;;
+        5) 
+        echo "Introduce el nombre del usuario que quiere modificar: "
+    	read usuario5
+   	 echo "Introduce el grupo que quiere añadir al usuario: "
+    	read grupo
+        opcion5 $usuario5 $grupo;;
         6) salir ;;
         *) echo "Opción no válida, por favor selecciona una opción entre 1 y 6." ;;
     esac
