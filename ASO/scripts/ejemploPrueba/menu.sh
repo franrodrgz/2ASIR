@@ -6,18 +6,15 @@ opcion1() {
 }
 
 opcion2() {
-    # Aquí deberías implementar la opción para modificar la contraseña
-    echo "Opción 2: Modificar la contraseña del usuario (todavía no implementado)."
+    bash ./red_scan.sh
 }
 
 opcion3() {
-    # Aquí deberías implementar la opción para eliminar un usuario
-    echo "Opción 3: Borrar un usuario (todavía no implementado)."
+    bash ./ges_firewall.sh
 }
 
 opcion4() {
-    # Aquí deberías implementar la opción para mostrar la información de un usuario
-    echo "Opción 4: Mostrar información de un usuario (todavía no implementado)."
+    sudo lpstat -a
 }
 
 salir() {
@@ -31,13 +28,13 @@ while true; do
     echo "-------------------------"
     echo "     Menú Principal"
     echo "-------------------------"
-    echo "1) Crear usuario, pidiendo el usuario y contraseña por pantalla."
+    echo "1) ges_user.sh."
     echo " "
-    echo "2) Modificar la contraseña del usuario."
+    echo "2) red_scan.sh."
     echo " "
-    echo "3) Borrar un usuario."
+    echo "3) ges_firewall.sh."
     echo " "
-    echo "4) Muestra información de un usuario dado por pantalla."
+    echo "4) Mostrar la impresoras disponibles en nuestro sistema."
     echo " "
     echo "5) Salir"
     echo "-------------------------"
