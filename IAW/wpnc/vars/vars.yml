@@ -1,0 +1,25 @@
+---
+ncDomain: "nc"
+wpDomain: "wp"
+wpIP: "127.0.0.1"
+wpDBName: "wpdb"
+wpDBUser: "wpdbu"
+wpDBPassword: "wpdbu"
+wpVirtualHostFile: "{{ wpDomain }}.conf"
+
+# MySQL
+mysqlRootPassword: "root"
+
+# COMMON VARS
+phpModules: [ 'php-curl', 'php-gd', 'php-mbstring', 'php-xml', 'php-xmlrpc', 'php-soap', 'php-intl', 'php-zip', 'php-imagick' ]
+# backend
+httpPort: "8080"
+# Certificado SSL
+CountryName: ""
+Province: ""
+Locality: ""
+OrganizationName: ""
+OrganizationalUnitName: ""
+CommonName: ""
+
+commonNames: [ '{{ wpDomain }}', '{{ ncDomain }}', '{{ wpDomain }}/CN={{ ncDomain }}' ]
