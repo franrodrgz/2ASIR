@@ -1,0 +1,4 @@
+dn: ou=ASIR,dc=fjrm-2asir,dc=lan
+objectClass: top
+objectClass: organizationalUnit
+ou: ASIR

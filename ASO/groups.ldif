@@ -1,0 +1,11 @@
+dn: cn=PRIMERO,ou=ASIR,dc=fjrm-2asir,dc=lan
+objectClass: top
+objectClass: posixGroup
+cn: PRIMERO
+gidNumber: 1001
+
+dn: cn=SEGUNDO,ou=ASIR,dc=fjrm-2asir,dc=lan
+objectClass: top
+objectClass: posixGroup
+cn: SEGUNDO
+gidNumber: 1002
