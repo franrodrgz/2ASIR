@@ -1,0 +1,10 @@
+hostnamectl set-hostname mail.vb.org
+hostname -f
+sudo nano /etc/hosts
+	127.0.0.1 mail.vb.org mx localhost localhost.localdomain
+wget https://github.com/iredmail/iRedMail/archive/refs/tags/1.7.2.tar.gz
+tar -xvzf 1.7.2.tar.gz
+cd iRedMail-1.7.2/
+sudo chmod -x iRedMail.sh 
+sudo bash iRedMail.sh 
+
