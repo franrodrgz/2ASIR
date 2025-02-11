@@ -14,8 +14,8 @@ nano /etc/vsftpd.conf
 	allow_writeable_chroot=YES
 	hide_ids=YES
 
-	#virutal user settings
-	user_config_dir=/etc/vsftpd_user_conf
+	#virtual user settings
+	user_config_dir=/etc/vsftpdUserConf
 	guest_enable=YES
 	virtual_use_local_privs=YES
 	pam_service_name=vsftpd
@@ -56,5 +56,3 @@ chown vsftpd:www-data /var/www/user1/wordpress
 chown vsftpd:www-data /var/www/user2/wordpress
 
 service vsftpd restart
-
-
