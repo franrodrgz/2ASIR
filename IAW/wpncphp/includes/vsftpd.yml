@@ -1,0 +1,83 @@
+---
+- hosts: all
+  become: true
+  gather_facts: no
+
+  tasks:
+    - name: Instalando el servicio VSFTPD
+      package:
+        name: "vsftpd"
+        state: present
+      tags: [ ftp ]
+
+    - name: Instalando el servicio libpam-pwdfile
+      package:
+        name: "libpam-pwdfile"
+        state: present
+      tags: [ ftp ]
+
+    - name: Verificar si la copia ya existe
+      stat:
+        path: /etc/vsftpd.conf.bck
+      register: vsftpd
+      tags: [ ftp ]
+
+    - name: Copiar archivo si no existe
+      copy:
+        src: /etc/vsftpd.conf
+        dest: /etc/vsftpd.conf.bck
+        remote_src: yes  # Indica que el archivo fuente está en el host remoto
+      when: not vsftpd.stat.exists
+      tags: [ ftp ]
+
+    - name: Configuración del fichero (vsftpd.conf)
+      template:
+        src: "../files/vsftpd.conf.j2"
+        dest: "/etc/vsftpd.conf"
+      tags: [ ftp ]
+
+    - name: Crear directorio /etc/vsftpd
+      file:
+        path: "/etc/vsftpd"
+        state: directory
+        owner: "root"
+        group: "root"
+        mode: '0755'
+
+    - name: Crear archivo de contraseñas para user1
+      shell: "htpasswd -cd -p -b /etc/vsftpd/ftpd.passwd user1 $(openssl passwd -1 -noverify user1)"
+      become: yes
+      no_log: true  # Opcional, evita que la contraseña sea visible en los logs
+
+    - name: Verificar si la copia ya existe
+      stat:
+        path: /etc/pam.d/vsftpd.bck
+      register: vsftpd
+      tags: [ ftp ]
+
+    - name: Copiar archivo si no existe
+      copy:
+        src: /etc/pam.d/vsftpd
+        dest: /etc/pam.d/vsftpd.bck
+        remote_src: yes  # Indica que el archivo fuente está en el host remoto
+      when: not vsftpd.stat.exists
+      tags: [ ftp ]
+
+    - name: Configuración del fichero (vsftpd.conf)
+      template:
+        src: "../files/vsftpd.pam.conf.j2"
+        dest: "/etc/pam.d/vsftpd"
+      tags: [ ftp ]
+
+    - name:  add a user for these virtual users
+      shell: "useradd --home /home/vsftpd --gid nogroup -m --shell /bin/false vsftpd"
+      become: yes
+      no_log: true  # Opcional, evita que la contraseña sea visible en los logs
+
+    - name: Crear directorio /etc/vsftpd
+      file:
+        path: "/etc/vsftpd_user_conf"
+        state: directory
+        owner: "root"
+        group: "root"
+        mode: '0755'
