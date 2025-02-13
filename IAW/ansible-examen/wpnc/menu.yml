@@ -274,3 +274,10 @@
 
     - name: Set permissions for directories
       shell: "chown -R www-data:www-data /var/www/nc/nextcloud"
+
+    - name: Reiniciar VSFTPD para aplicar cambios
+      service:
+        name: vsftpd
+        state: restarted
+      #delegate_to: "localhost"
+      become: yes
