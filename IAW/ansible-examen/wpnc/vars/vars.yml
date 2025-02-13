@@ -1,0 +1,68 @@
+---
+wpDomain: "wp"
+wpIP: "127.0.0.1"
+wpDBName: "wpdb"
+wpDBUser: "wpdbu"
+wpDBPassword: "wpdbu"
+wpVirtualHostFile: "{{ wpDomain }}.conf"
+#index: 0
+
+# MySQL
+mysqlRootPassword: "root"
+
+# COMMON VARS
+phpModules: [ 'php-curl', 'php-gd', 'php-mbstring', 'php-xml', 'php-xmlrpc', 'php-soap', 'php-intl', 'php-zip', 'php-imagick' ]
+commonNames: [ '{{wpDomain}}', '{{ncDomain}}', '{{wpDomain}}/CN={{ncDomain}}' ]
+
+# VSFTP
+wpUser: "userwp"
+wpPassword: "userwp"
+ncUser: "usernc"
+ncPassword: "usernc"
+
+# backend
+httpPort: "8080"
+
+# Nextcloud
+ncDBName: "ncdb"
+ncDBUser: "ncuser"
+ncDBPassword: "ncuser"
+ncDomain: "nc"
+ncIP: "127.0.0.1"
+ncDataPath: "/var/www/nc"
+
+#HTTP Settings
+http_host: "nc"
+http_conf: "nc.conf"
+
+# PhpMyAdmin
+phpmyadmin_dir: "/var/www/phpmyadmin"
+htpasswd_file: "/etc/apache2/.htpasswd"
+phpmyadmin_conf: "/etc/phpmyadmin/apache.conf"
+auth_user: "user"
+auth_password: "user"
+
+# VARIABLES GLOBALES
+#System Settings
+#php_modules: [ 'php-curl', 'php-gd', 'php-mbstring', 'php-xml', 'php-xmlrpc', 'php-soap', 'php-intl', 'php-zip', 'php-imagick' ]
+
+#MySQL Settings
+#mysql_root_password: "root"
+
+#HTTP Settings
+#http_port: "8080"
+
+#Nginx Settings
+#nginx_domain: "ra"
+
+# VARIABLES DE WORDPRESS
+#http_conf_wp: "{{ wpDomain }}.conf"
+#mysql_db_wp: "wpdb"
+#mysql_user_wp: "wpuser"
+#mysql_password_wp: "wpuser"
+
+# VARIABLES DE NEXTCLOUD
+#http_conf_nc: "{{ ncDomain }}.conf"
+#mysql_db_nc: "ncdb"
+#mysql_user_nc: "ncuser"
+#mysql_password_nc: "ncuser"
