@@ -201,8 +201,7 @@
         insertafter: '^<Directory /usr/share/phpmyadmin>'
         line: '    AllowOverride All'
         state: present
-      tags: [ htaccess
-       ]
+      tags: [ htaccess ]
 
     - name: Ejecutar instalación de WordPress
       import_tasks: "includes/subWordpress.yml"
