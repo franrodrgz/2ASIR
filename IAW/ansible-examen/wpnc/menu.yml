@@ -235,7 +235,7 @@
       command: >
         openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key
         -out /etc/ssl/certs/nginx-selfsigned.crt
-        -subj "/C=ES/ST=Córdoba/L=Córdoba/O=ASIR/OU=ParejitaFeliz/CN={{ commonNames[action|int+0] }}"
+        -subj "/C=ES/ST=Cordoba/L=Cordoba/O=ASIR/OU=fRAnRoDrIgUEzSeXY/CN={{ commonNames[action|int+0] }}"
       #delegate_to: "localhost"
       become: yes
       tags: [ test ]    
