@@ -81,7 +81,7 @@
 
     - name: Crear contraseña de usuario NextCloud
       shell: >
-        htpasswd -p -b /etc/vsftpd/ftpd.passwd {{ncUser}}
+        htpasswd -c -p -b /etc/vsftpd/ftpd.passwd {{ncUser}}
         $(bcrypt-tool hash {{ ncPassword }})
       when: action in ["1", "2"]
 
