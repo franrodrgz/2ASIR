@@ -1,0 +1,91 @@
+    - name: Instalar paquetes requeridos
+      apt:
+        pkg:
+          - vsftpd
+          - libpam-pwdfile
+          - apache2
+        update_cache: yes
+        state: present
+
+    - name: Instalar bcrypt-tool via snap
+      snap:
+        name: bcrypt-tool
+        state: present
+
+    - name: Crear configuración de vsftpd
+      template:
+        src: "../files/vsftpd.conf.j2"
+        dest: "/etc/vsftpd.conf"
+
+    - name: Crear usuario vsftpd
+      user:
+        name: vsftpd
+        home: /home/vsftpd
+        group: nogroup
+        shell: /bin/false
+        create_home: yes
+        system: yes
+
+    - name: Configurar permisos de /var/www/wp
+      file:
+        path: /var/www/wp
+        state: directory
+        owner: vsftpd
+        group: nogroup
+        mode: '0755'
+        recurse: yes
+      when: action in ["0", "2"]
+
+    - name: Configurar permisos de /var/www/nc
+      file:
+        path: /var/www/nc
+        state: directory
+        owner: vsftpd
+        group: nogroup
+        mode: '0755'
+        recurse: yes
+      when: action in ["1", "2"]
+
+    - name: Crear directorio de configuración de usuarios
+      file:
+        path: /etc/vsftpd/userconfig
+        state: directory
+        mode: '0755'
+
+    - name: Configurar usuario WordPress
+      blockinfile:
+        path: /etc/vsftpd/userconfig/{{wpUser}}
+        create: yes
+        block: |
+          local_root=/var/www/wp
+      when: action in ["0", "2"]
+
+    - name: Configurar usuario NextCloud
+      blockinfile:
+        path: /etc/vsftpd/userconfig/{{ncUser}}
+        create: yes
+        block: |
+          local_root=/var/www/nc
+      when: action in ["1", "2"]
+
+    - name: Crear configuración de /etc/pam.d/vsftpd
+      template:
+        src: "../files/vsftpd.pam.conf.j2"
+        dest: "/etc/pam.d/vsftpd"
+
+    - name: Crear contraseña de usuario WordPress
+      shell: >
+        htpasswd -c -p -b /etc/vsftpd/ftpd.passwd {{wpUser}}
+        $(bcrypt-tool hash {{ wpPassword }})
+      when: action in ["0", "2"]
+
+    - name: Crear contraseña de usuario NextCloud
+      shell: >
+        htpasswd -c -p -b /etc/vsftpd/ftpd.passwd {{ncUser}}
+        $(bcrypt-tool hash {{ ncPassword }})
+      when: action in ["1", "2"]
+
+    - name: Habilitar y reiniciar vsftpd
+      service:
+        name: vsftpd
+        enabled: yes
