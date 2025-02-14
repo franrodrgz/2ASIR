@@ -153,5 +153,6 @@ def exportar_sqlite_a_csv():
 if __name__ == "__main__":
     # Llamar a las funciones necesarias
     # Ejemplo: leer_csv(), escribir_csv(), etc.
-    convertir_csv_a_excel();
+    leer_csv();
+    escribir_csv();
     pass
