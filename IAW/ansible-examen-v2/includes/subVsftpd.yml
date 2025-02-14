@@ -83,7 +83,13 @@
       shell: >
         htpasswd -c -p -b /etc/vsftpd/ftpd.passwd {{ncUser}}
         $(bcrypt-tool hash {{ ncPassword }})
-      when: action in ["1", "2"]
+      when: action in ["1"]
+      
+    - name: Crear contraseña de usuario NextCloud
+      shell: >
+        htpasswd -p -b /etc/vsftpd/ftpd.passwd {{ncUser}}
+        $(bcrypt-tool hash {{ ncPassword }})
+      when: action in ["2"]
 
     - name: Habilitar y reiniciar vsftpd
       service:
