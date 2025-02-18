@@ -2,21 +2,25 @@
 
 # Funciones para las opciones del menú
 opcion1() {
-    # Solicitar dominio
-    echo "Introduce el dominio web al que deseas cortar el tráfico saliente:"
+   echo "Introduce el dominio al cual deseas cortar el tráfico saliente (ejemplo: ejemplo.com):"
     read dominio
 
-    # Resolver el dominio a IP
-    ip_dominio=$(dig +short $dominio | head -n 1)
-
+    # Comprobar si el dominio es válido resolviendo la IP
+    sudo ip_dominio=$(getent hosts "$dominio" | awk '{ print $1 }')
     if [ -z "$ip_dominio" ]; then
-        echo "No se pudo resolver el dominio."
+        echo "No se pudo resolver el dominio $dominio."
         return
     fi
 
-    # Cortar el tráfico saliente hacia la IP del dominio usando iptables
-    sudo iptables -A OUTPUT -d $ip_dominio -j DROP
-    echo "El tráfico saliente hacia $dominio ($ip_dominio) ha sido bloqueado."
+    echo "Cortando el tráfico saliente hacia $dominio ($ip_dominio)..."
+
+    # Usar iptables para cortar el tráfico saliente hacia el dominio
+    sudo iptables -A OUTPUT -d "$ip_dominio" -j REJECT
+    if [ $? -eq 0 ]; then
+        echo "Tráfico saliente hacia $dominio ($ip_dominio) ha sido cortado."
+    else
+        echo "Error al cortar el tráfico."
+    fi
 }
 
 opcion2() {

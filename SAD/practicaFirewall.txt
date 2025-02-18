@@ -1,0 +1,87 @@
+1. Crear el laboratorio de pruebas
+
+En primer lugar, deberás crear las siguientes máquinas virtuales (VM) en tu entorno de pruebas (por ejemplo, en VirtualBox, VMware o Proxmox):
+Máquinas virtuales necesarias:
+
+    Servidor Web (en DMZ): Una VM con Debian, que tendrá el servidor web de WordPress (por ejemplo, usando Apache o Nginx).
+    Servidor de Base de Datos (en LAN): Otra VM con Debian, que aloje MySQL o MariaDB (será accesible solo desde la LAN).
+    Firewall (PFSense): Esta es la máquina que actuará como el cortafuegos entre las redes LAN, DMZ y WAN (Internet).
+    Máquina Anfitrión (simulando Internet): Esta máquina simula una conexión desde Internet, usando, por ejemplo, un sistema Linux con herramientas como curl o wget para probar la conectividad.
+
+Redes necesarias:
+
+    LAN: Red interna a la que se conectan las máquinas de la empresa (por ejemplo, 192.168.1.0/24).
+    DMZ: Zona desmilitarizada donde está el servidor web (por ejemplo, 10.0.0.0/24).
+    WAN (Internet): Red externa, simulada por el anfitrión que se conecta a PFSense.
+
+2. Configuración de PFSense
+Paso 1: Configuración básica de interfaces de red
+
+    Asigna interfaces en PFSense:
+        WAN: Conectada a la red que simula Internet (puede ser la red de tu anfitrión, por ejemplo, una red NAT o bridged).
+        LAN: Conectada a la red interna (por ejemplo, 192.168.1.0/24).
+        DMZ: Conectada a la red de la DMZ (por ejemplo, 10.0.0.0/24).
+
+    Asegúrate de tener habilitada la NAT en la interfaz WAN para permitir que las máquinas en la LAN y DMZ puedan acceder a Internet.
+
+Paso 2: Crear reglas de firewall en PFSense
+
+Ahora que las interfaces están configuradas, vamos a crear las reglas de firewall para cumplir con los requisitos.
+
+    El servidor web debe ser accesible desde Internet:
+        En Firewall > Rules > WAN, crea una nueva regla para permitir el tráfico HTTP (puerto 80) y HTTPS (puerto 443) desde cualquier IP (0.0.0.0/0) hacia la IP del servidor web en la DMZ.
+            Acción: Pass
+            Interfaz: WAN
+            Protocolo: TCP
+            Puerto de origen: any
+            Puerto de destino: 80, 443
+            Destino: IP del servidor web en la DMZ.
+
+    La red DMZ no tiene acceso a la red LAN:
+        En Firewall > Rules > DMZ, crea una regla para bloquear el tráfico hacia la LAN.
+            Acción: Block
+            Interfaz: DMZ
+            Protocolo: any
+            Destino: Red de la LAN (192.168.1.0/24).
+
+    La red LAN tiene acceso a la DMZ y a Internet:
+        En Firewall > Rules > LAN, crea una regla para permitir el tráfico hacia la DMZ y hacia Internet.
+            Acción: Pass
+            Interfaz: LAN
+            Protocolo: any
+            Destino: any (para Internet).
+            Crea una segunda regla para permitir el tráfico hacia la DMZ.
+                Acción: Pass
+                Interfaz: LAN
+                Protocolo: any
+                Destino: Red DMZ (10.0.0.0/24).
+
+    Denegar el tráfico desde la IP 200.10.23.21 hacia la DMZ:
+        En Firewall > Rules > WAN, crea una regla para bloquear todo el tráfico desde la IP 200.10.23.21 hacia la DMZ.
+            Acción: Block
+            Interfaz: WAN
+            Origen: 200.10.23.21
+            Destino: Red de la DMZ (10.0.0.0/24).
+
+    Permitir ping solo desde la LAN al servidor web y al firewall:
+        En Firewall > Rules > LAN, crea una regla para permitir el tráfico ICMP (ping) hacia la IP del servidor web y hacia la IP del firewall.
+            Acción: Pass
+            Interfaz: LAN
+            Protocolo: ICMP
+            Destino: IP del servidor web y IP del firewall.
+        Luego, crea una regla para bloquear el resto del tráfico ICMP.
+            Acción: Block
+            Interfaz: LAN
+            Protocolo: ICMP
+            Destino: any.
+
+    Permitir acceso SSH desde la LAN al servidor web:
+        En Firewall > Rules > LAN, crea una regla para permitir acceso SSH (puerto 22) al servidor web en la DMZ.
+            Acción: Pass
+            Interfaz: LAN
+            Protocolo: TCP
+            Puerto de destino: 22
+            Destino: IP del servidor web.
+
+    La base de datos debe estar en una red segura (LAN):
+        Asegúrate de que el servidor de base de datos esté únicamente accesible desde la LAN y no desde la DMZ ni desde Internet. En la configuración del firewall, no debe haber reglas que permitan acceso desde la DMZ al servidor de base de datos.

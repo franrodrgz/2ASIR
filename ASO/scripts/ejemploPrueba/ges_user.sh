@@ -15,7 +15,18 @@ opcion3() {
 }
 
 opcion4() {
-	echo "si"
+    echo "Introduce la ruta del fichero con los usuarios (nombre,DNI,password):"
+    read archivo
+
+    if [ ! -f "$archivo" ]; then
+        echo "El fichero no existe."
+        return
+    fi
+
+    while IFS=, read -r nombre dni password; do
+        sudo useradd "$nombre" && echo "$nombre:$password" | sudo chpasswd
+        echo "Usuario $nombre con DNI $dni dado de alta correctamente."
+    done < "$archivo"
 }
 
 salir() {

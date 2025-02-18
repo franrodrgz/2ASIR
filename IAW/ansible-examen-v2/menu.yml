@@ -288,6 +288,7 @@
 
     - name: Set permissions for directories
       shell: "chown -R www-data:www-data /var/www/nc/nextcloud"
+      when: action in ["1", "2"]
 
     - name: Reiniciar VSFTPD para aplicar cambios
       service:
