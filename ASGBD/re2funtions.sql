@@ -1,10 +1,5 @@
 /* RELACIÓN DE EJERCICIOS 2. AUTOMATIZACIÓN DE TAREAS */
 
-/* EJERCICIO 1 */
-/* Crea una funcion que modifique la tabla pedidos para añadirle un atributo llamado “importe”. Debe darle el valor de la suma de los importes de las lineas de pedido que le correspondan. */
-
-/* NO */
-
 /* EJERCICIO 2 */
 /* Escribe una funcion que diga si hay o no pedidos cancelados. */
 
@@ -74,29 +69,6 @@ BEGIN
         RETURN 'Hay más de 100 pedidos en esa fecha';
     ELSE
         RETURN 'Hay menos de 100 pedidos en esa fecha';
-    END IF;
-END //
-
-DELIMITER ;
-
-/* EJERCICIO 5 */
-/* Crea una funcion que recibe el nombre de una categoría y un número. El funcion mostrará tantos productos de la categoría como indique el número. Por ejemplo si recibe la categoría “pulseras” y el número 5, mostrará cinco productos de la categoría “pulseras”. El número debe estar entre 1 y 10, de lo contrario no hará nada y mostrará el mensaje “El número no es válido”. */
-
-DELIMITER //
-
-CREATE FUNCTION verCategoria(categorias VARCHAR(255),numero INT)
-RETURNS TABLE
-DETERMINISTIC
-BEGIN
-    IF numero <= 10 THEN
-      RETURN (
-        SELECT codProducto, nombre, categoria
-        FROM productos 
-        WHERE categoria = categorias
-        LIMIT numero;
-        );
-    ELSE
-        RETURN 'El número no es válido';
     END IF;
 END //
 
