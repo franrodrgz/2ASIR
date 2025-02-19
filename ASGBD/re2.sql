@@ -96,4 +96,24 @@ DELIMITER ;
 /* EJERCICIO 5 */
 /* Crea un procedimiento que recibe el nombre de una categoría y un número. El procedimiento mostrará tantos productos de la categoría como indique el número. Por ejemplo si recibe la categoría “pulseras” y el número 5, mostrará cinco productos de la categoría “pulseras”. El número debe estar entre 1 y 10, de lo contrario no hará nada y mostrará el mensaje “El número no es válido”. */
 
+DELIMITER //
 
+CREATE PROCEDURE verCategoria(
+    IN categorias VARCHAR(255),
+    IN numero INT
+)
+BEGIN
+    DECLARE mensaje VARCHAR(255);
+
+    IF numero <= 10 THEN
+        SELECT codProducto, nombre, categoria
+        FROM productos 
+        WHERE categoria = categorias
+        LIMIT numero;
+    ELSE
+        SET mensaje = 'El número no es válido';
+        SELECT mensaje AS resultado;
+    END IF;
+END //
+
+DELIMITER ;
