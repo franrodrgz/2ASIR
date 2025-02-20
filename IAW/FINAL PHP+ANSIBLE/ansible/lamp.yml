@@ -1,0 +1,77 @@
+---
+- hosts: localhost
+  connection: local
+  become: true
+  
+  vars:
+    phpModules: [ 'php-tokenizer', 'php-curl', 'php-gd', 'php-mbstring', 'php-xml', 'php-xmlrpc', 'php-soap', 'php-intl', 'php-zip', 'php-imagick', 'php-gmp', 'php-bcmath' ]
+    mysqlRootPassword: "root"
+    lampDomain: "wu"
+    vhRoot: "/var/www/web"
+
+  tasks:
+    # SOFTWARE
+    - name: Install prerequisites
+      apt: name=aptitude update_cache=yes state=latest force_apt_get=yes
+      tags: [ system ]
+
+    - name: Install LAMP Packages
+      apt: name={{ item }} update_cache=yes state=latest
+      loop: [ 'apache2', 'mariadb-server', 'python3-pymysql', 'php', 'php-mysql', 'libapache2-mod-php' ]
+      tags: [ system ]
+
+    - name: Install PHP Extensions
+      apt: name={{ item }} update_cache=yes state=latest
+      loop: "{{ phpModules }}"
+      tags: [ system ]      
+
+    # MySQL 
+    - name: Set the root password
+      mysql_user:
+        name: root
+        password: "{{ mysqlRootPassword }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+      tags: [ mysql, mysql-root ]
+
+    - name: Remove all anonymous user accounts
+      mysql_user:
+        name: ''
+        host_all: yes
+        state: absent
+        login_user: root
+        login_password: "{{ mysqlRootPassword }}"
+      tags: [ mysql ]
+
+    - name: Remove the MySQL test database
+      mysql_db:
+        name: test
+        state: absent
+        login_user: root
+        login_password: "{{ mysqlRootPassword }}"
+      tags: [ mysql ]
+
+    # APACHE2 
+    - name: Create document root
+      file:
+        path: "{{ vhRoot }}"
+        state: directory
+        owner: "www-data"
+        group: "www-data"
+        mode: '0755'
+      tags: [ apache ]
+
+    - name: Set up Apache VirtualHost
+      template:
+        src: "lamp.conf.j2"
+        dest: "/etc/apache2/sites-available/lamp.conf"
+      tags: [ apache ]
+
+    - name: Enable new site
+      shell: /usr/sbin/a2ensite lamp.conf
+      tags: [ apache ]
+
+    - name: Restart Apache to apply changes
+      service:
+        name: apache2
+        state: restarted
+      tags: [ apache ]
