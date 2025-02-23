@@ -1,0 +1,109 @@
+##################################################
+# DO Community Playbooks: LAMP on Ubuntu 18.04
+##################################################
+---
+- hosts: localhost
+  connection: local
+  become: true
+  vars_prompt:
+    - name: "name_server"
+      prompt: "¿Cuál sera el nombre del servidor?"
+      private: no
+    - name: "balance"
+      prompt: "¿Cuál sera la carga de este servidor apache2?"
+      private: no
+    - name: "ip_server"
+      prompt: "¿Cuál sera la IP del servidor?"
+      private: no
+    - name: "server_port"
+      prompt: "¿Cuál sera el puerto por el que trabajara el servidor?"
+      private: no
+
+  tasks:
+    - name: Hostname
+      set_fact:
+        apache_servers: "{{name_server}}"
+
+    - name: Balance
+      set_fact:
+        apache_servers: "{{balance}}"
+
+    - name: Ip
+      set_fact:
+        apache_servers: "{{ip_server}}"
+
+    - name: http_port
+      set_fact:
+        apache_servers: "{{server_port}}"
+
+
+  tasks:
+    - name: Install prerequisites
+      apt: name={{ item }} update_cache=yes state=latest force_apt_get=yes
+      loop: [ 'aptitude' ]
+
+  #Apache Configuration
+    - name: Install LAMP Packages
+      apt: name={{ item }} update_cache=yes state=latest
+      loop: [ 'apache2' ]
+
+    - name: Create document root
+      file:
+        path: "/var/www/{{ name_server }}"
+        state: directory
+        owner: "user"
+        group: "user"
+        mode: '0755'
+
+    - name: Set up Apache virtualhost
+      template:
+        src: "files/apache.conf.j2"
+        dest: "/etc/apache2/sites-available/{{ name_server }}.conf"
+      notify: Reload Apache
+
+    - name: Enable new site
+      shell: /usr/sbin/a2ensite {{ name_server }}
+      notify: Reload Apache
+
+    - name: Disable default Apache site
+      shell: /usr/sbin/a2dissite 000-default.conf
+      notify: Reload Apache
+
+  # PHP Info Page
+    - name: Sets Up PHP Info Page
+      template:
+        src: "files/web.html.j2"
+        dest: "/var/www/{{ name_server }}/index.html"
+    - name: Sets Up PHP Info Page
+      lineinfile:
+        path: /etc/nginx/sites-available/proxyinverso.conf
+        insertafter: "^upstream proxy {"
+        line: "  server {{ip_server}}:{{server_port}} weight={{ balance }};"
+      notify: Reload Nginx
+    - name: Change listening port to 8080
+      ansible.builtin.lineinfile:
+        path: /etc/apache2/ports.conf
+        regexp: '^Listen 80'
+        line: 'Listen {{ server_port }}'
+      notify: Restart Nginx
+
+  handlers:
+    - name: Reload Apache
+      service:
+        name: apache2
+        state: reloaded
+
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
+
+    - name: Reload Nginx
+      service:
+        name: nginx
+        state: reloaded
+
+    - name: Restart Nginx
+      service:
+        name: nginx
+        state: restarted

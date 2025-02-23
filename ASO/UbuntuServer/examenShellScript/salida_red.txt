@@ -1,0 +1,16 @@
+tcp        0      0 Fran:35964              172.64.150.156:https    TIME_WAIT  
+tcp        0      0 Fran:45960              104.18.41.33:https      TIME_WAIT  
+tcp        0      0 Fran:35960              104.26.3.70:https       TIME_WAIT  
+tcp        0      0 Fran:35232              mad07s25-in-f14.1:https TIME_WAIT  
+tcp        0      0 Fran:49518              104.18.87.42:https      TIME_WAIT  
+tcp        0      0 Fran:57538              mad07s25-in-f10.1:https TIME_WAIT  
+tcp        0      0 Fran:51672              mad41s11-in-f3.1e1:http TIME_WAIT  
+tcp        0      0 Fran:51674              mad41s11-in-f3.1e1:http TIME_WAIT  
+tcp        0      0 Fran:49510              104.18.87.42:https      TIME_WAIT  
+tcp        0      0 Fran:36714              104.18.35.23:https      TIME_WAIT  
+tcp        0      0 Fran:36592              mad07s25-in-f14.1:https TIME_WAIT  
+tcp        0      0 Fran:57622              mad07s23-in-f3.1e:https TIME_WAIT  
+tcp        0      0 Fran:50040              249.195.120.34.bc:https TIME_WAIT  
+tcp        0      0 Fran:40270              mad41s11-in-f3.1e1:http TIME_WAIT  
+tcp        0      0 Fran:38244              104.18.40.222:https     TIME_WAIT  
+tcp        0      0 Fran:42776              mad07s24-in-f1.1e:https TIME_WAIT  

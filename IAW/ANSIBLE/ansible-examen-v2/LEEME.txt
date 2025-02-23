@@ -1,0 +1,14 @@
+#IMPORTANTE
+#Es OBLIGATORIO seguir la estructura de archivos o NO FUNCIONARÁ.
+#Para utilizar otra estructura de archivos deberas manejar las rutas del menu.yml
+
+#Al ejecutar por primera vez el playbook usaremos este comando, indicando el usuario, y con el -K dado que en mi caso no ejecuta sin asignar contraseña de root.
+
+ansible-playbook playbooks/menu.yml -i inventories/inventory -u user -K
+
+
+#Al ejecutarlo por segunda vez, deberemos ejecutar el comando con --skip-tags e indicar entre comillas la tag a ignorar
+
+ansible-playbook playbooks/menu.yml -i inventories/inventory -u user -K --skip-tags "mysql-root"
+
+#IMPORTANTE ANTES DE EJECUTAR EL PLAYBOOK SE DEBE CAMBIAR LA IP DEL ARCHIVO "inventario" y HACER UN "ssh-keygen" Y UN "ssh-copy-id" AL USUARIO Y IP DE LA MAQUINA DONDE SE EJECUTARA.
