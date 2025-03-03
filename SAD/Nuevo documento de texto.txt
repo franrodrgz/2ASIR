@@ -1,0 +1,75 @@
+1. Configurar la máquina de la base de datos
+a. Instalar MySQL/MariaDB
+En la máquina que actuará como servidor de base de datos, instala MySQL o MariaDB:
+
+sudo apt update
+sudo apt install mysql-server
+b. Configurar MySQL/MariaDB
+Asegúrate de que el servidor de base de datos esté configurado para aceptar conexiones desde la máquina de WordPress.
+
+Edita el archivo de configuración de MySQL:
+
+
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+Cambia la línea bind-address para que permita conexiones desde la IP de la máquina de WordPress:
+
+
+bind-address = 0.0.0.0
+Reinicia el servicio de MySQL:
+
+
+sudo systemctl restart mysql
+c. Crear la base de datos y el usuario de WordPress
+Accede a MySQL:
+
+sudo mysql -u root -p
+Crea una base de datos para WordPress:
+
+CREATE DATABASE wordpress;
+Crea un usuario y asígnale permisos para acceder a la base de datos:
+
+CREATE USER 'wordpress_user'@'IP_de_la_maquina_de_WordPress' IDENTIFIED BY 'tu_contraseña';
+GRANT ALL PRIVILEGES ON wordpress.* TO 'wordpress_user'@'IP_de_la_maquina_de_WordPress';
+FLUSH PRIVILEGES;
+Sal de MySQL:
+
+EXIT;
+2. Configurar la máquina de WordPress
+a. Instalar WordPress
+Instala un servidor web (por ejemplo, Apache o Nginx) y PHP:
+
+sudo apt update
+sudo apt install apache2 php php-mysql libapache2-mod-php
+Descarga y configura WordPress:
+
+cd /var/www/html
+sudo wget https://wordpress.org/latest.tar.gz
+sudo tar -xvzf latest.tar.gz
+sudo mv wordpress/* .
+sudo rm -rf wordpress latest.tar.gz
+sudo chown -R www-data:www-data /var/www/html
+b. Configurar WordPress para usar la base de datos remota
+Edita el archivo wp-config.php:
+
+sudo nano /var/www/html/wp-config.php
+Define las constantes de la base de datos con la información de la base de datos remota:
+
+define('DB_NAME', 'wordpress');
+define('DB_USER', 'wordpress_user');
+define('DB_PASSWORD', 'tu_contraseña');
+define('DB_HOST', 'IP_de_la_maquina_de_la_base_de_datos');
+define('DB_CHARSET', 'utf8');
+define('DB_COLLATE', '');
+Guarda y cierra el archivo.
+
+c. Configurar el servidor web
+Asegúrate de que el servidor web esté configurado para servir WordPress correctamente.
+
+Reinicia el servidor web:
+
+sudo systemctl restart apache2
+3. Asegurar la comunicación entre las máquinas
+a. Configurar el firewall
+Asegúrate de que el firewall en la máquina de la base de datos permita conexiones desde la IP de la máquina de WordPress en el puerto de MySQL (por defecto, 3306):
+
+sudo ufw allow from IP_de_la_maquina_de_WordPress to any port 3306
