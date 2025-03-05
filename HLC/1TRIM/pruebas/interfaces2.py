@@ -3,7 +3,7 @@
 
 #################################################################################################
 #          FUNCIÓN: cargaDatos    
-#          OBJETIVO: crear una lista con las líneas del fichero
+#          OBJETIVO: crear unalista con las líneas del fichero
 #          PARÁMETROS DE ENTRADA: una cadena de texto con el nombre del fichero a leer
 #          PARÁMETROS DE SALIDA: una lista con las líneas del fichero
 #################################################################################################   
@@ -13,8 +13,10 @@ def cargaDatos():
 		archivo=open("interfaces.txt")
 	except FileNotFoundError:
 		print("No se ha podido abrir el archivo")
+
 	lista=archivo.readlines()
 	archivo.close()
+
 	return(lista)
 
 #################################################################################################
@@ -40,17 +42,15 @@ def mostrarDatos():
 #                                resto de la línea.
 #################################################################################################   
 
-def filtrarDatos(lineas):
-    dicc = {}  # Crear un diccionario vacío
-    i = 0  # Contador para las claves
-
-    for linea in lineas:
-        if "gateway" not in linea:  # Filtrar líneas que no contienen "gateway"
-            clave = f"eth{i}"  # Crear una clave única
-            dicc[clave] = linea.strip()  # Agregar la línea al diccionario
-            i += 1  # Incrementar el contador
-
-    return dicc
+def filtrarDatos():
+	lineas=cargaDatos()
+	i = 0
+	for linea in lineas:
+		if "gateway" not in linea:
+			clave = f"eth{i}"
+			dicc={clave:(linea)}
+			i+1
+	return dicc
 
 #################################################################################################
 #          FUNCIÓN: mostrarFiltrados   
@@ -59,33 +59,27 @@ def filtrarDatos(lineas):
 #          PARÁMETROS DE SALIDA: ninguno. Muestra por pantalla el contenido
 #################################################################################################  
 
-def mostrarFiltrados(dicc):
-    for clave, valor in dicc.items():
-        print(f"{clave}: {valor}")
+def mostrarFiltrados():
+	lineas=filtrarDatos()
+	print(lineas)
 
 #################################################################################################
 
 def main(args):
-    if len(args) != 2:
-        print("Uso: python script.py <nombre_archivo>")
-        return 1
 
-    nombre_archivo = args[1]
+	mostrarDatos()
+	mostrarFiltrados()
+	#Uso de las funciones
+	#listaLineas = cargaDatos("interfaces.txt")
+	#print("Contenido /etc/networks/interfaces:\n")
+	#mostrarDatos(listaLineas)
 
-    # Uso de las funciones
-    listaLineas = cargaDatos(nombre_archivo)
-    if not listaLineas:
-        return 1  # Salir si no se pudo cargar el archivo
+	#print("\nInterfaces sin gateway\n")
+	#datosFiltrados=filtrarDatos(listaLineas)
+	#mostrarFiltrados(datosFiltrados)
 
-    print("Contenido del archivo:\n")
-    mostrarDatos(listaLineas)
-
-    print("\nInterfaces sin gateway:\n")
-    datosFiltrados = filtrarDatos(listaLineas)
-    mostrarFiltrados(datosFiltrados)
-
-    return 0
+	return 0
 
 if __name__ == '__main__':
-    import sys
-    sys.exit(main(sys.argv))
+	import sys
+	sys.exit(main(sys.argv))
