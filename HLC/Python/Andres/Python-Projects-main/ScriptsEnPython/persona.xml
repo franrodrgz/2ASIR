@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persona>
+    <nombre>Juan</nombre>
+    <edad>30</edad>
+    <direccion>
+        <calle>Calle Falsa 123</calle>
+        <ciudad>Madrid</ciudad>
+        <pais>España</pais>
+    </direccion>
+    <telefono tipo="móvil">123-456-789</telefono>
+    <telefono tipo="fijo">987-654-321</telefono>
+</persona>

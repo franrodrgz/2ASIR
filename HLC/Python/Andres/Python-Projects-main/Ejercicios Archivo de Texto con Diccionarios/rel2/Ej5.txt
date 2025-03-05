@@ -1,0 +1,5 @@
+[
+(“cron.service”,“loaded”,”active”,”running”,”Regular background program processing daemon”),
+(“nginx.service”,”loaded”,”active”,”running”,” A high performance web server and a reverse proxy server”),
+(“mysql.service”,”loaded”,”inactive”,”dead”,”MySQL Community Server”)
+]

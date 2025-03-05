@@ -1,0 +1,305 @@
+#RE1 Triggers
+delimiter //
+create trigger ej1 
+before insert on lineapedido
+for each row
+begin
+	declare stock_actual INT;
+	select enAlmacen into stock_actual from productos where codProducto = new.codProducto;
+	if new.cantidad > stock_actual then
+	signal sqlstate '45000' set message_text = 'No hay suficiente stock';
+	end if;
+end;//
+delimiter ; 
+
+INSERT INTO `lineapedido` (`numeroPedido`, `codProducto`, `cantidad`, `precio`, `numeroLinea`)  
+VALUES ('10425', 'S18_4600', 5, 107.76, 16);
+
+delimiter //
+create trigger ej2
+after insert on lineapedido
+for each row
+begin
+	declare precio_producto;
+	select precio into precio_producto 
+	from productos
+	where codProducto = NEW.codProducto;
+
+	update pedidos
+	set importe_total = importe_total + (new.cantidad * precio_producto)
+	where codPedido = new.codPedido;
+end;
+//
+delimiter ; 
+
+
+delimiter //
+create trigger ej3
+after insert on lineapedido
+for each row
+begin
+	update productos
+	set enAlmacen = enAlmacen - new.cantidad
+	where codProducto = new.codProducto;
+end;
+//
+delimiter ; 
+
+#RE1 Automatizacion de tareas
+delimiter //
+create procedure ej1()
+begin
+	declare usuario_max varchar(50);
+	declare num_max int;
+	
+	select user, count(*) into usuario_max, num_max
+	from information_schema.processlist
+	group by user
+	order by count(*) desc
+	limit 1;
+	
+	select usuario_max, num_max;
+end //
+delimiter ;
+
+delimiter //
+create procedure ej2(IN nombre_usuario VARCHAR(50))
+begin
+	select 
+		SELECT_priv,
+		INSTERT_priv,
+		DELETE_priv,
+		UPDATE_priv
+	from mysql.user
+	WHERE user = nombre_usuario;
+END //
+delimiter ;
+
+delimiter //
+CREATE PROCEDURE ej4()
+BEGIN
+	DECLARE comerciales int;
+	select count(*) into comerciales
+	from empleados;
+	
+	select comerciales as 'Numero de comerciales';
+end //
+delimiter ;
+
+delimiter //
+CREATE PROCEDURE ej5()
+BEGIN
+	DECLARE num_pedidos INT;
+	SELECT count(*) into num_pedidos
+	FROM pedidos
+	WHERE YEAR(fechaPedido) = 2020 and estado like "Cancelado";
+	
+	select num_pedidos as 'Numero de pedidos';
+END //
+delimiter ;
+
+delimiter //
+CREATE PROCEDURE ej6()
+BEGIN
+	SELECT user
+	from mysql.user
+	where Execute_priv = 'Y'
+	ORDER BY user;
+END //
+delimiter ;
+
+delimiter //
+CREATE PROCEDURE ej7()
+BEGIN
+	declare cod varchar(50);
+	declare precio decimal(10,2);
+	
+	SELECT codProducto, precioVenta INTO cod, precio
+	from productos
+	order by precio desc
+	limit 1;
+	
+	select concat(nombre,'-',categoria,'-',precio) as 'Datos producto'
+	from productos
+	where codProducto = cod;
+	
+END //
+delimiter ;
+
+delimiter //
+CREATE PROCEDURE ej8(INOUT cod varchar(50), INOUT precio decimal(10,2), IN porcentaje decimal(5,2))
+BEGIN
+	SET precio = precio * (1 + porcentaje / 100);
+	UPDATE productos
+	SET precioVenta = precio
+	WHERE codProducto = cod;
+END //
+delimiter ;
+
+delimiter //
+CREATE PROCEDURE ej9(IN cod varchar(50))
+BEGIN
+	DECLARE nombre_prod varchar(50);
+	SELECT nombre into nombre_prod FROM productos
+	WHERE codProducto = cod;
+	set cod = nombre_prod;
+	select cod as 'nombre del producto';
+END //
+delimiter ;
+
+delimiter //
+CREATE PROCEDURE ej10(IN cantidad decimal(10,2))
+BEGIN
+	DECLARE cod varchar(50);
+	select codProducto into cod from productos
+	where enAlmacen = cantidad
+	limit 1;
+	select cod as 'codigo del producto';
+END //
+delimiter ;
+
+delimiter //
+CREATE PROCEDURE ej1()
+BEGIN
+	IF NOT EXISTS (
+		SELECT *
+		FROM information_schema.COLUMNS
+		WHERE TABLE_NAME = 'pedidos' and COLUMN_NAME = 'importe'
+	) THEN
+		ALTER TABLE pedidos ADD COLUMN importe DECIMAL(10,2);
+	END IF;
+	
+	UPDATE pedidos
+	SET importe = (
+		SELECT SUM(precio)
+		FROM lineapedido
+		WHERE lineapedido.numeroPedido = pedidos.numeroPedido
+	);
+END //
+delimiter ; 
+
+delimiter //
+CREATE PROCEDURE ej2()
+BEGIN
+	DECLARE cancelados INT;
+	select count(*) into cancelados from pedidos
+	where estado like 'Cancelado';
+	if cancelados > 0 then
+		select 'Hay pedidos cancelados' as Resultado;
+	else
+		select 'No hay pedidos cancelados' as Resultado;
+	end if;
+END //
+delimiter ;
+
+delimiter //
+CREATE PROCEDURE ej3(IN fecha date)
+BEGIN
+	DECLARE n_pedidos INT;
+	SELECT count(*) INTO n_pedidos FROM pedidos
+	WHERE fechaPedido like fecha
+	limit 1;
+	if n_pedidos > 0 then
+		select 'Hay pedidos en esa fecha' as Resultado;
+	else
+		select 'No hay pedidos en esa fecha' as Resultado;
+	end if;
+END //
+delimiter;
+
+delimiter //
+CREATE PROCEDURE ej4(IN anio INT, OUT mensaje varchar(50))
+BEGIN
+	DECLARE n_pedidos INT;
+	SELECT count(*) into n_pedidos from pedidos
+	WHERE fechaPedido like anio;
+	
+	IF n_pedidos < 100 THEN
+		SET mensaje = "Menos de 100 pedidos";	
+	ELSEIF n_pedidos < 150 THEN
+		SET mensaje = "Entre 100 y 150 pedidos";
+	ELSE
+		SET mensaje = "Mas de 150 pedidos";
+	END IF;
+
+END //
+delimiter ;
+
+delimiter //
+CREATE PROCEDURE ej5(IN cat varchar(50), IN numero INT)
+BEGIN
+	IF numero < 10 THEN
+		SELECT * from productos
+		WHERE categoria like cat
+		limit numero;
+	ELSE
+		select 'El numero no es valido' as Resultado;
+	END IF;
+END //
+delimiter ;
+
+delimiter //
+CREATE FUNCTION ej2()
+RETURNS VARCHAR(50)
+DETERMINISTIC
+BEGIN
+	DECLARE n_pedidos INT;
+	SELECT count(*) into n_pedidos FROM pedidos
+	WHERE estado like 'Cancelado';
+	IF n_pedidos > 0 THEN
+		return 'Hay pedidos cancelados';
+	ELSE
+		return 'No hay pedidos cancelados';
+	END IF;
+END //
+delimiter ;
+
+delimiter //
+CREATE FUNCTION ej3(fecha date)
+RETURNS VARCHAR(50)
+DETERMINISTIC
+BEGIN
+	DECLARE n_pedidos INT;
+	SELECT count(*) into n_pedidos from pedidos
+	where fechaPedido like fecha;
+	if n_pedidos > 0 then
+		return 'Hay pedidos en esa fecha';
+	else
+		return 'No hay pedidos';
+	end if;
+END //
+delimiter ;
+
+delimiter //
+CREATE FUNCTION ej4(anio int)
+RETURNS VARCHAR(50)
+DETERMINISTIC
+BEGIN
+	DECLARE n_pedidos INT;
+	SELECT count(*) into n_pedidos from pedidos
+	WHERE YEAR(fechaPedido) like anio;
+	if n_pedidos < 100 THEN
+		return 'Menos de 100 pedidos';
+	ELSEIF n_pedidos < 150 THEN
+		return 'Entre 100 y 150 pedidos';
+	ELSE
+		return 'Mas de 150 pedidos';
+	END IF;
+END //
+delimiter ;
+
+delimiter //
+CREATE FUNCTION ej5(cad varchar(50),num INT)
+RETURNS VARCHAR(1000)
+DETERMINISTIC
+BEGIN
+	IF num between 1 and 10 then
+		SELECT * FROM pedidos WHERE categoria like cad limit num;
+	else
+		return 'EL numero no es valido';
+	end if;
+END //
+delimiter ;
+
+
+

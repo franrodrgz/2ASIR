@@ -6,10 +6,8 @@ def main():
     b=int(input())
     if a-b>0:
         print("Beneficio")
-    elif a-b<0:
+    else:
         print("Perdida")
-    elif a-b==0:
-        print("Te quedas igual")
     return 0
 if __name__ == '__main__':
     sys.exit(main())
