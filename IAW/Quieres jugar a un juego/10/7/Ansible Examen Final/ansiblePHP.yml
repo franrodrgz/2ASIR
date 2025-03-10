@@ -150,7 +150,7 @@
       command: >
         openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key
         -out /etc/ssl/certs/nginx-selfsigned.crt
-        -subj "/C=ES/ST=Córdoba/L=Córdoba/O=ASIR/OU=atenper/CN={{ domainNames }}"
+        -subj "/C=ES/ST=Córdoba/L=Córdoba/O=ASIR/OU=fran/CN={{ domainNames }}"
       become: yes  
     
     - name: Remove the default site symbolic link
