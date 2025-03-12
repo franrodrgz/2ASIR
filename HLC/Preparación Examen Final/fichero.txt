@@ -1,0 +1,4 @@
+El usuario carlos con ip 192.162.1.10 con correo carlos@domain.ext y dominio domain.ext su dni es 26352634 con letra C tiene las siguientes asignaturas Matematicas: 5, Lengua: 3
+El usuario jorge con ip 1192.162.1.10 con correo jorge@domain.ext y dominio domain.ext su dni es 24146643 con letra D tiene las siguientes asignaturas Matematicas: 2, Lengua: 1
+El usuario jose con ip 192.162.1.11 con correo jose@domain. y dominio domain.ext su dni es 26352634 con letra C tiene las siguientes asignaturas Matematicas: 5, Lengua: 3
+El usuario curro con ip 192.162.1.12 con correo curro@domain.ext y dominio domain.ext su dni es 32352634 con letra C tiene las siguientes asignaturas Matematicas: 1, Lengua: 1
